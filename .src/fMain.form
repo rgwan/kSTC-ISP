@@ -1,0 +1,286 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(70,26.625,56,46)
+  Text = ("kSTC89ISP")
+  Resizable = False
+  { Frame1 Frame
+    MoveScaled(22,19,34,26)
+    Text = ("控制")
+    { Label4 Label
+      MoveScaled(1,2,11,4)
+      Text = ("状态：脱机")
+    }
+    { ProgressBar1 ProgressBar
+      MoveScaled(1,22,31,4)
+    }
+    { Button6 Button
+      MoveScaled(24,2,9,4)
+      Text = ("关于")
+    }
+    { Button1 Button
+      MoveScaled(16,2,8,4)
+      Text = ("自动下载")
+    }
+    { Button7 Button
+      MoveScaled(11,2,5,4)
+      Text = ("设置")
+    }
+    { Button9 Button
+      MoveScaled(20,17,4,4)
+      ToolTip = ("如果下载的时候提示超时，点一下这个，或许可以恢复哦～\n常见于使用XGCom的Linux电脑。")
+      Text = ("修复")
+    }
+    { Button10 Button
+      MoveScaled(24,17,9,4)
+      Text = ("重复下载")
+    }
+    { Button11 Button
+      MoveScaled(9,17,7,4)
+      Text = ("清除历史")
+    }
+    { Button12 Button
+      MoveScaled(16,17,4,4)
+      Text = ("调试")
+    }
+    { Button13 Button
+      MoveScaled(2,17,7,4)
+      ToolTip = ("如果您新插入了串口设备，可以点此按钮扫描")
+      Text = ("扫描串口")
+    }
+  }
+  { TextLabel6 TextLabel
+    MoveScaled(23,33,20,4)
+    Text = ("高波特率：")
+  }
+  { TextLabel1 TextLabel
+    MoveScaled(23,27,8,4)
+    Text = ("端口名：")
+  }
+  { TextLabel2 TextLabel
+    MoveScaled(23,30,20,4)
+    Text = ("低波特率：")
+  }
+  { TextLabel3 TextLabel
+    MoveScaled(57,74,21,4)
+    Text = ("Parity :")
+  }
+  { TextLabel4 TextLabel
+    MoveScaled(57,78,21,4)
+    Text = ("Data Bits :")
+  }
+  { TextLabel5 TextLabel
+    MoveScaled(57,82,21,4)
+    Text = ("Stop Bits :")
+  }
+  { CmbParity ComboBox
+    MoveScaled(47,78,15,4)
+    ReadOnly = True
+    List = [("None"), ("Even"), ("Odd")]
+  }
+  { CmbData ComboBox
+    MoveScaled(47,82,15,4)
+    ReadOnly = True
+    List = [("8"), ("7"), ("6"), ("5")]
+  }
+  { CmbStop ComboBox
+    MoveScaled(47,86,15,4)
+    ReadOnly = True
+    List = [("1"), ("2")]
+  }
+  { Label1 Label
+    MoveScaled(59,79,15,4)
+    Text = ("Flow control :")
+  }
+  { ComboBox1 ComboBox
+    MoveScaled(69,85,20,4)
+    ReadOnly = True
+    List = [("NONE"), ("CRTSCTS"), ("XON/XOFF"), ("CRTSCTS + XON/XOFF")]
+    Text = (" ")
+  }
+  { Button2 Button
+    MoveScaled(46,33,9,4)
+    Tag = "点击此按钮能获得MCU的选项。如果带有自动断电装置能硬复位MCU"
+    Text = ("取得选项")
+  }
+  { Button3 Button
+    MoveScaled(46,30,9,4)
+    Enabled = False
+    Text = ("停止")
+  }
+  { cmbSerial ComboBox
+    MoveScaled(31,27,15,4)
+    ReadOnly = True
+  }
+  { txtFile TextBox
+    MoveScaled(31,24,15,4)
+  }
+  { Button4 Button
+    MoveScaled(46,24,9,4)
+    Text = ("打开文件")
+  }
+  { CmbSpeed2 ComboBox
+    MoveScaled(31,33,15,4)
+    ReadOnly = True
+    List = [("1200"), ("2400"), ("4800"), ("9600"), ("19200"), ("38400"), ("57600"), ("115200"), ("230400")]
+  }
+  { Button5 Button
+    MoveScaled(46,27,9,4)
+    Text = ("开始下载")
+  }
+  { Label3 Label
+    MoveScaled(23,24,7,4)
+    Text = ("文件名：")
+  }
+  { CmbSpeed ComboBox
+    MoveScaled(31,30,15,4)
+    ReadOnly = True
+    List = [("1200"), ("2400"), ("4800"), ("9600"), ("19200"), ("38400"), ("57600"), ("115200"), ("230400")]
+  }
+  { Label5 Label
+    MoveScaled(24,39,31,3)
+    Text = ("进度：                  Made by 万致远")
+  }
+  { Frame2 Frame
+    MoveScaled(1,0,34,19)
+    Text = ("选项信息")
+    { Label6 Label
+      MoveScaled(1,12,24,3)
+      Text = ("看门狗是否复位停止：")
+    }
+    { Label8 Label
+      MoveScaled(1,6,24,3)
+      Text = ("振荡器增益：")
+    }
+    { Label9 Label
+      MoveScaled(1,16,32,3)
+      Text = ("下次下载是否要将P1.0/P1.1短路到地：")
+    }
+    { Label13 Label
+      MoveScaled(1,2,24,3)
+      Text = ("MCU型号：")
+    }
+    { Label14 Label
+      MoveScaled(21,2,11,3)
+      Text = ("Hz")
+    }
+    { Label15 Label
+      MoveScaled(1,4,24,3)
+      Text = ("MCU固件版本：")
+    }
+    { Label16 Label
+      MoveScaled(1,10,17,3)
+      Text = ("ALE管脚状态：")
+    }
+    { Label18 Label
+      MoveScaled(1,14,26,3)
+      Text = ("下次下载程序时擦除数据区：")
+    }
+    { Label19 Label
+      MoveScaled(21,4,11,3)
+      Text = ("MHz")
+    }
+    { Label7 Label
+      MoveScaled(1,8,32,3)
+      Text = ("内部扩展内存：")
+    }
+    { Label2 Label
+      MoveScaled(21,6,11,3)
+      Text = ("MHz")
+    }
+    { Label10 Label
+      MoveScaled(22,10,11,3)
+      Text = ("时钟周期：")
+    }
+    { Label11 Label
+      MoveScaled(22,8,11,3)
+      Text = ("自动下载：关")
+    }
+  }
+  { Frame3 Frame
+    MoveScaled(35,0,21,19)
+    Text = ("设置选项")
+    { CheckBox2 CheckBox
+      MoveScaled(1,2,13,3)
+      ToolTip = ("选中为高增益，不选为低增益。建议选中")
+      Text = ("时钟增益")
+      Value = CheckBox.True
+    }
+    { CheckBox3 CheckBox
+      MoveScaled(1,6,13,3)
+      ToolTip = ("选中将在下次下载中擦除片内DataFlash的数据")
+      Text = ("擦除数据")
+    }
+    { CheckBox4 CheckBox
+      MoveScaled(1,12,13,3)
+      ToolTip = ("如果勾选此项，用户程序启动看门狗，在复位单片机后，看门狗将停止")
+      Text = ("看门狗停止")
+      Value = CheckBox.True
+    }
+    { CheckBox5 CheckBox
+      MoveScaled(1,4,13,3)
+      ToolTip = ("设置是否将P1.0/P1.1短接到地后才可下载")
+      Text = ("快速启动")
+    }
+    { CheckBox8 CheckBox
+      MoveScaled(1,10,13,3)
+      ToolTip = ("若勾选此项则ALE管脚仍然为ALE，取消则作为P4.5")
+      Text = ("ALE/P4.5")
+      Value = CheckBox.True
+    }
+    { CheckBox9 CheckBox
+      MoveScaled(1,14,14,3)
+      ToolTip = ("设置是否允许访问内部扩展的RAM空间。")
+      Text = ("内部扩展内存")
+      Value = CheckBox.True
+    }
+    { sPort #SerialPort
+    }
+    { Sport1 #SerialPort
+      #MoveScaled(1,1)
+    }
+    { CheckBox1 CheckBox
+      MoveScaled(1,8,13,3)
+      ToolTip = ("选中单片机工作在6T模式。不选在12T模式。")
+      Text = ("时钟加倍")
+    }
+    { T_AutoDown #Timer
+      #MoveScaled(2,2)
+    }
+    { Button8 Button
+      MoveScaled(6,16,4,3)
+      Visible = False
+      Text = ("x")
+    }
+  }
+  { TimerStart #Timer
+    #MoveScaled(18,12)
+    Delay = 50
+  }
+  { Timer1 #Timer
+    #MoveScaled(8,3)
+    Delay = 10000
+  }
+  { Frame4 Frame
+    MoveScaled(1,19,21,26)
+    Text = ("日志")
+    { TextArea1 TextArea
+      MoveScaled(1,2,19,20)
+    }
+    { Label12 Label
+      MoveScaled(2,22,17,4)
+      Text = ("成功下载次数：")
+    }
+  }
+  { txtDebug TextArea
+    MoveScaled(56,3,31,42)
+    Text = ("调试区域 如果有BUG可以从这里提取信息\n")
+    ReadOnly = True
+    Wrap = True
+    ScrollBar = Scroll.Vertical
+  }
+  { Label21 Label
+    MoveScaled(56,0,15,4)
+    Text = ("调试信息区：")
+  }
+}

@@ -1,0 +1,28 @@
+' Gambas class file
+
+' Gambas class file
+
+Static Public Function BinToHex(s As String) As String
+Dim Buff As String
+Dim pos As Integer
+Dim a As String
+Dim Length As Integer
+Length = Len(s)
+Buff = ""
+For pos = 1 To Length
+  a = Hex(Asc(Mid(s, pos, 1)))
+  If Len(a) < 2 Then a = "0" & a
+  Buff = Buff & a & " "
+Next
+Return Buff
+End
+Static Public Function FillZero(Zero As Integer) As String
+Dim counter As Integer
+Dim S_TEMP As String
+For COUNTER = 1 To ZERO
+S_Temp = S_Temp & Chr(&HFF)
+Next
+Return S_TEMP
+End
+
+' Gambas class file

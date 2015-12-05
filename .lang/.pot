@@ -1,0 +1,341 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2002-11-01 04:27+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: fMain.form:72
+msgid "kSTC89ISP"
+msgstr ""
+
+#: fMain.form:77
+msgid "控制"
+msgstr ""
+
+#: fMain.form:81
+msgid "状态：脱机"
+msgstr ""
+
+#: fMain.form:90
+msgid "关于"
+msgstr ""
+
+#: fMain.form:95
+msgid "自动下载"
+msgstr ""
+
+#: fMain.form:100
+msgid "设置"
+msgstr ""
+
+#: fMain.form:105
+msgid ""
+"如果下载的时候提示超时，点一下这个，或许可以恢复哦～\n"
+"常见于使用XGCom的Linux电脑。"
+msgstr ""
+
+#: fMain.form:106
+msgid "修复"
+msgstr ""
+
+#: fMain.form:111
+msgid "重复下载"
+msgstr ""
+
+#: fMain.form:116
+msgid "清除历史"
+msgstr ""
+
+#: fMain.form:121
+msgid "调试"
+msgstr ""
+
+#: fMain.form:126
+msgid "如果您新插入了串口设备，可以点此按钮扫描"
+msgstr ""
+
+#: fMain.form:127
+msgid "扫描串口"
+msgstr ""
+
+#: fMain.form:133
+msgid "高波特率："
+msgstr ""
+
+#: fMain.form:138
+msgid "端口名："
+msgstr ""
+
+#: fMain.form:143
+msgid "低波特率："
+msgstr ""
+
+#: fMain.form:148
+msgid "Parity :"
+msgstr ""
+
+#: fMain.form:153
+msgid "Data Bits :"
+msgstr ""
+
+#: fMain.form:158
+msgid "Stop Bits :"
+msgstr ""
+
+#: fMain.form:164
+msgid "None"
+msgstr ""
+
+#: fMain.form:164
+msgid "Even"
+msgstr ""
+
+#: fMain.form:164
+msgid "Odd"
+msgstr ""
+
+#: fMain.form:170
+msgid "8"
+msgstr ""
+
+#: fMain.form:170
+msgid "7"
+msgstr ""
+
+#: fMain.form:170
+msgid "6"
+msgstr ""
+
+#: fMain.form:170
+msgid "5"
+msgstr ""
+
+#: fMain.form:176
+msgid "1"
+msgstr ""
+
+#: fMain.form:176
+msgid "2"
+msgstr ""
+
+#: fMain.form:181
+msgid "Flow control :"
+msgstr ""
+
+#: fMain.form:187
+msgid "NONE"
+msgstr ""
+
+#: fMain.form:187
+msgid "CRTSCTS"
+msgstr ""
+
+#: fMain.form:187
+msgid "XON/XOFF"
+msgstr ""
+
+#: fMain.form:187
+msgid "CRTSCTS + XON/XOFF"
+msgstr ""
+
+#: fMain.form:194
+msgid "取得选项"
+msgstr ""
+
+#: fMain.form:200
+msgid "停止"
+msgstr ""
+
+#: fMain.form:214
+msgid "打开文件"
+msgstr ""
+
+#: fMain.form:220
+msgid "1200"
+msgstr ""
+
+#: fMain.form:220
+msgid "2400"
+msgstr ""
+
+#: fMain.form:220
+msgid "4800"
+msgstr ""
+
+#: fMain.form:220
+msgid "9600"
+msgstr ""
+
+#: fMain.form:220
+msgid "19200"
+msgstr ""
+
+#: fMain.form:220
+msgid "38400"
+msgstr ""
+
+#: fMain.form:220
+msgid "57600"
+msgstr ""
+
+#: fMain.form:220
+msgid "115200"
+msgstr ""
+
+#: fMain.form:220
+msgid "230400"
+msgstr ""
+
+#: fMain.form:225
+msgid "开始下载"
+msgstr ""
+
+#: fMain.form:230
+msgid "文件名："
+msgstr ""
+
+#: fMain.form:241
+msgid "进度：                  Made by 万致远"
+msgstr ""
+
+#: fMain.form:246
+msgid "选项信息"
+msgstr ""
+
+#: fMain.form:250
+msgid "看门狗是否复位停止："
+msgstr ""
+
+#: fMain.form:255
+msgid "振荡器增益："
+msgstr ""
+
+#: fMain.form:260
+msgid "下次下载是否要将P1.0/P1.1短路到地："
+msgstr ""
+
+#: fMain.form:265
+msgid "MCU型号："
+msgstr ""
+
+#: fMain.form:270
+msgid "Hz"
+msgstr ""
+
+#: fMain.form:275
+msgid "MCU固件版本："
+msgstr ""
+
+#: fMain.form:280
+msgid "ALE管脚状态："
+msgstr ""
+
+#: fMain.form:285
+msgid "下次下载程序时擦除数据区："
+msgstr ""
+
+#: fMain.form:290
+msgid "MHz"
+msgstr ""
+
+#: fMain.form:295
+msgid "内部扩展内存："
+msgstr ""
+
+#: fMain.form:305
+msgid "时钟周期："
+msgstr ""
+
+#: fMain.form:310
+msgid "自动下载：关"
+msgstr ""
+
+#: fMain.form:316
+msgid "设置选项"
+msgstr ""
+
+#: fMain.form:320
+msgid "选中为高增益，不选为低增益。建议选中"
+msgstr ""
+
+#: fMain.form:321
+msgid "时钟增益"
+msgstr ""
+
+#: fMain.form:327
+msgid "选中将在下次下载中擦除片内DataFlash的数据"
+msgstr ""
+
+#: fMain.form:328
+msgid "擦除数据"
+msgstr ""
+
+#: fMain.form:333
+msgid "如果勾选此项，用户程序启动看门狗，在复位单片机后，看门狗将停止"
+msgstr ""
+
+#: fMain.form:334
+msgid "看门狗停止"
+msgstr ""
+
+#: fMain.form:340
+msgid "设置是否将P1.0/P1.1短接到地后才可下载"
+msgstr ""
+
+#: fMain.form:341
+msgid "快速启动"
+msgstr ""
+
+#: fMain.form:346
+msgid "若勾选此项则ALE管脚仍然为ALE，取消则作为P4.5"
+msgstr ""
+
+#: fMain.form:347
+msgid "ALE/P4.5"
+msgstr ""
+
+#: fMain.form:353
+msgid "设置是否允许访问内部扩展的RAM空间。"
+msgstr ""
+
+#: fMain.form:354
+msgid "内部扩展内存"
+msgstr ""
+
+#: fMain.form:366
+msgid "选中单片机工作在6T模式。不选在12T模式。"
+msgstr ""
+
+#: fMain.form:367
+msgid "时钟加倍"
+msgstr ""
+
+#: fMain.form:376
+msgid "x"
+msgstr ""
+
+#: fMain.form:390
+msgid "日志"
+msgstr ""
+
+#: fMain.form:398
+msgid "成功下载次数："
+msgstr ""
+
+#: fMain.form:404
+msgid "调试区域 如果有BUG可以从这里提取信息\n"
+msgstr ""
+
+#: fMain.form:412
+msgid "调试信息区："
+msgstr ""
+
+#: .project:1
+msgid "Serial port example"
+msgstr ""

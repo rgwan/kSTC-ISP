@@ -1,0 +1,12 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(70,26.625,52,60)
+  Text = ("Serial Port")
+  { sport1 #SerialPort
+    #MoveScaled(4,6)
+  }
+  { SerialPort2 #SerialPort
+    #MoveScaled(18,10)
+  }
+}

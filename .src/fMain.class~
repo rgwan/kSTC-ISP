@@ -1,0 +1,1107 @@
+' Gambas class file
+
+'PRIVATE Sport AS SerialPort
+'PUBLIC SUB Form_Open()
+'  Sport=NEW SerialPort AS "Sport"
+'END
+ Static x As Boolean
+ Static recvd As Boolean
+ Static recvBuff As String
+ Static recv As Boolean
+ Static recvptr As Integer
+ Static recvLen As Integer
+ Static sClock As Long
+ Static AutoISP As Boolean
+ Static Calc_Error As Integer
+ Static Send_Buff As String
+ Static MCU_MODEL As String
+ Static MCU_REAL_CLOCK As Long
+ Static MCU_Option As String
+ Static Frame_Type As Boolean
+ Static TMOD As Boolean 'TRUE 12T,FALSE 6T
+ Static press_button As Boolean
+ Static Last_M_TIME As Date
+ Static Down As Boolean
+ Static Count_DOWN As Long
+ Static A As Boolean
+ 'STATIC PUBLIC MCU_Setting AS String
+Public Sub Form_Close()
+Dim recentFile As File
+Try Close Sport
+Try Close Sport1
+  If Sport.Status = Net.Active Then Close Sport
+  x = False
+  Wait 0.1
+' [GB2:OPEN] OPEN User.Home & "/.stc89_history" FOR OUTPUT CREATE AS #recentFile
+recentFile = Open User.Home & "/.stc89_history" For Output Create
+Print #recentFile, cmbSpeed.Text
+Print #recentFile, cmbSpeed2.Text
+Print #recentFile, txtFile.Text
+Print #recentFile, T_AutoDown.Delay
+Print #recentFile, Count_DOWN
+Print #recentFile, AutoISP
+Print #recentFile, cmbSerial.Text
+Close #recentFile
+End
+
+
+
+
+
+
+Public Sub SPort_Read()
+  Dim s As String
+  '这里的处理稍微麻烦一点
+  Try Read #Sport, s, 1 '这里出错程序就挂住了，每次读一个
+
+  If (Asc(s) = &H46 And recvptr = 0) '帧开始了
+  'DEBUG "a"
+    recv = True
+    Frame_Type = True
+  Else If (Asc(s) = &H68 And recvptr = 0)
+  recv = True
+  Frame_Type = False
+  'DEBUG "c"
+  Else If (Asc(s) = &H16) 'EOT标志，STC不支持读
+   ' DEBUG "A=" & recvptr 
+   ' DEBUG "B=" & recvLen
+   ' DEBUG "FT=" & Frame_Type
+    If ((recvlen - 1) = recvptr And Frame_Type = False)
+    recv = False
+    recvBuff = recvBuff & s
+    recvptr = recvptr + 1
+    recvd = True '整个数据帧接收完毕
+    End If
+    If ((recvlen + 1) = recvptr And Frame_Type = True)
+    recv = False
+    recvBuff = recvBuff & s
+    recvptr = recvptr + 1
+    recvd = True '整个数据帧接收完毕
+    End If
+   
+  'ELSE IF (Asc(s) = &H16 AND (recvlen - 1) = recvptr AND Frame_Type = FALSE) 'EOT标志，STC不支持读
+  ' DEBUG "b"
+  ' recv = FALSE 
+  ' recvBuff = recvBuff & s
+  ' recvptr = recvptr + 1
+  ' recvd = TRUE '整个数据帧接收完毕
+  ' DEBUG "okay"
+  End If
+  If recv Then
+    recvBuff = recvBuff & s
+    recvptr = recvptr + 1
+  End If
+  If recvptr = 5 And Frame_Type = True Then
+   recvLen = Asc(s)
+   'DEBUG "Len" & global.BinToHex(s)
+   End If
+   If recvptr = 3 And Frame_Type = False Then
+   recvLen = Asc(s)
+   'DEBUG "Len" & global.BinToHex(s)
+   End If
+End
+
+
+
+Public Function GetMCUType(Model As Byte) As String
+MCU_MODEL = Chr(Model)
+If Model = 240 Then
+Return "STC89C52RC"
+Else
+Return "Unknown"
+End If
+End
+Sub SCBU(value As Boolean)
+  
+Try Button2.Enabled = value
+If Error Then Quit
+  Button5.enabled = value
+  cmbSpeed.enabled = value
+  cmbSpeed2.enabled = value
+  Button3.enabled = Not value
+  Down = Not value
+  If Not T_AutoDown.Enabled Then Button4.enabled = value
+  cmbSerial.enabled = value
+  CheckBox1.enabled = value
+  CheckBox2.enabled = value
+  CheckBox3.enabled = value
+  CheckBox4.enabled = value
+  CheckBox5.enabled = value
+  Button9.enabled = value
+'  CheckBox6.enabled = value
+'  CheckBox7.enabled = value
+  CheckBox8.enabled = value
+  CheckBox9.enabled = value
+'  cmbWDT.enabled = value
+  If Not T_AutoDown.Enabled Then txtFile.enabled = value
+  If Not T_AutoDown.Enabled Then button4.enabled = value
+    If value Then
+    Label4.Text = "状态：脱机"
+  Else
+    Label4.Text = "状态：联机"
+  End If
+End
+
+Public Function ChkBuff(buff As String) As Boolean
+Dim Test As Boolean
+If Frame_Type Then
+TEST = (CheckSum(Buff, 3, Len(Buff) - 2) = Mid(Buff, Len(buff) - 1, 1))
+Else
+TEST = (CheckSum(Buff, 1, Len(Buff) - 2) = Mid(Buff, Len(buff) - 1, 1))
+End If
+  If TEST Then
+    Return True
+  Else
+   MyDEBUG("校验和错误！")
+   CmdLog("数据接收出错！")
+   x = False
+    If Frame_Type Then
+    'DEBUG global.BinToHex(buff)
+    'DEBUG global.BinToHex(Mid(buff, 3, Len(buff) - 4))
+    MyDEBUG("Sum1:" & global.BinToHex(CheckSum(Buff, 3, Len(Buff) - 2)))
+    MyDEBUG("Sum2:" & global.BinToHex(Mid(Buff, Len(buff) - 1, 1)))
+    Else
+    MyDEBUG("Sum1:" & global.BinToHex(CheckSum(Buff, 1, Len(Buff) - 2)))
+    MyDEBUG("Sum2:" & global.BinToHex(Mid(Buff, Len(buff) - 1, 1)))
+    End If
+    Return False
+  End If
+End
+Public Sub MyDEBUG(s As Variant)
+  If fMain.Width = 880 Then
+  txtDebug.Text = txtDebug.Text & Str(s) & Chr(13)
+  End If
+  Debug s
+  
+End
+Public Sub Button2_Click()
+Dim I As Integer
+Dim s As String
+ClrBuff()
+SCBU(False)
+x = True
+  If Sport.Status = Net.Inactive Then
+    'Message("请先开端口!")
+    OpenCom(cmbSpeed.Text)
+  End If
+
+CmdLog("开始于 " & Format(Time, "hh.mm.ss") & "  ……")
+CmdLog("发送0x7f以开启ISP模式")
+CmdLog("请给 MCU 上电……")
+TimerStart.Enabled = True
+MyDEBUG("----开始发送开启帧-----")
+If WaitData() Then
+  '成功接收到一帧数据
+  'DEBUG global.BinToHex(MCU_Option)
+  Calc_Speed
+  ShowOption
+  MyDEBUG("MCU特征字：" & global.BinToHex(MCU_MODEL))
+  send_buff = Chr(&HFE) & Chr(&HFE) & Chr(&HFE) & Chr(&HFE)
+  Write #sport, send_buff, Len(send_buff)
+  send_buff = Chr(&H82) & Chr(&H00)
+  SendData() '让单片机RESET
+  SCBU(True)
+  CmdLog("取得选项成功……")
+  Else
+    CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+    ClrBuff()
+    CloseCom() '关闭通讯
+    SCBU(True)
+    Return
+  End If
+ ' textarea1.clear
+
+CloseCom
+End
+Sub Calc_Speed()
+Dim Options As Integer
+    Options = Asc(Mid(MCU_Option, 3, 1))
+    sClock = (Asc(Mid(recvBuff, 7, 1)) * 256 + Asc(Mid(recvBuff, 8, 1))) * Val(cmbSpeed.text) * 12 / 6.941 '补偿
+    MyDEBUG(global.BinToHex(Mid(recvBuff, 7, 2)))
+    MCU_Option = Mid(recvBuff, 23, 6)
+    Label14.Text = Str(sClock) & " Hz"
+    Label19.Text = Str(Int(sClock / 1000) / 1000) & " MHz"
+    Label13.Text = "MCU型号：" & GetMCUType(Asc(Mid(MCU_Option, 4, 1)))
+    Label15.Text = "MCU固件版本：" & Str(Val(Hex(Asc(Mid(MCU_Option, 1, 1)))) / 10)
+    If BTst(Options, 0) Then
+    MCU_REAL_CLOCK = sClock
+    Label10.Text = "时钟周期：12T"
+    TMOD = True
+    Else
+    MCU_REAL_CLOCK = sClock / 2
+    Label10.Text = "时钟周期：6T"
+    TMOD = False
+    End If
+    Label2.Text = Str(Int(MCU_REAL_CLOCK / 1000) / 1000) & " MHz"
+    If Val(Hex(Asc(Mid(MCU_Option, 1, 1)))) = 43 Then
+    Label15.Text = Label15.Text & "C"
+    Else
+    Label15.Text = Label15.Text & "I"
+    End If
+End
+
+Sub ShowOption()
+Dim Options As Integer
+Dim tempStr As String
+Dim pre_Fre As Integer
+
+    Options = Asc(Mid(MCU_Option, 3, 1))
+    If BTst(Options, 0) Then
+    Label10.Text = "时钟周期：12T"
+    TMOD = True
+    Else
+    Label10.Text = "时钟周期：6T"
+    End If
+    If BTst(Options, 4) Then
+    Label8.Text = "振荡器增益：高增益"
+    Else
+    Label8.Text = "振荡器增益：低增益"
+    End If
+    If BTst(Options, 6) Then
+    Label7.Text = "内部扩展内存：允许访问"
+    Else
+    Label7.Text = "内部扩展内存：禁止访问"
+    End If
+    If BTst(Options, 5) Then
+    Label16.Text = "ALE管脚状态：ALE"
+    Else
+    Label16.Text = "ALE管脚状态：P4.5"
+    End If
+    If BTst(Options, 7) Then
+    Label6.Text = "看门狗是否复位停止：是"
+    Else
+    Label6.Text = "看门狗是否复位停止：否"
+    End If
+    If BTst(Options, 3) Then
+    Label18.Text = "下次下载程序时擦除数据区：否"
+    Else
+    Label18.Text = "下次下载程序时擦除数据区：是"
+    End If
+    If BTst(Options, 2) Then
+    Label9.Text = "下次下载是否要将P1.0/P1.1短路到地：否"
+    Else
+    Label9.Text = "下次下载是否要将P1.0/P1.1短路到地：是"
+    End If
+End
+
+Sub SendStart()
+  
+'TRY WRITE #sPort, Chr(&H7F) & Chr(&H7F), 2 '发送开启帧
+
+    Write #sPort, Chr(&H7F) & Chr(&H7F) & Chr(&H7F) & Chr(&H7F) & Chr(&H7F) & Chr(&H7F) & Chr(&H7F) & Chr(&H7F), 8 '发送开启帧
+End
+
+
+
+
+
+
+Public Sub ComboBox1_Click()
+ 
+  Sport.FlowControl = ComboBox1.Index
+
+End
+Public Sub SetInterVal(Value As Integer)
+  
+  T_AutoDown.Delay = value
+End
+Public Function GetInterVal() As Integer
+  Dim i As Integer
+  i = T_AutoDown.Delay
+  Return i
+End
+
+
+Public Sub Form_Open()
+  Dim File As String
+  Dim recentFile As File
+Dim counter As Integer
+Dim s As String
+Dim y As Integer
+cmbSpeed.Index = cmbSpeed.Find("2400")
+cmbSpeed2.Index = cmbSpeed2.Find("115200")
+CmbParity.index = CmbParity.Find("NONE")
+counter = 0
+If Not Exist(User.Home & "/.stc89_history") Then
+' [GB2:OPEN] OPEN User.Home & "/.stc89_history" FOR OUTPUT CREATE AS #recentFile
+recentFile = Open User.Home & "/.stc89_history" For Output Create
+Print #recentFile, cmbSpeed.Text
+Print #recentFile, cmbSpeed2.Index
+Print #recentFile, txtFile.Text
+Print #recentFile, T_AutoDown.Delay
+Print #recentFile, Count_DOWN
+Print #recentFile, AutoISP
+Print #recentFile, cmbSerial.Text
+Close #recentFile
+Else
+' [GB2:OPEN] OPEN User.Home & "/.stc89_history" FOR INPUT AS #recentFile
+recentFile = Open User.Home & "/.stc89_history" For Input
+Try Input #recentFile, s
+cmbSpeed.Index = cmbSpeed.Find(s)
+Try Input #recentFile, s
+cmbSpeed2.Index = cmbSpeed2.Find(s)
+Try Input #recentFile, txtFile.Text
+Try Input #recentFile, s
+T_AutoDown.Delay = Val(s)
+Try Input #recentFile, s
+Count_DOWN = Val(s)
+Try Input #recentFile, AutoISP
+Try Input #recentFile, s
+Close #recentFile
+End If
+Label12.text = Label12.text & Str(Count_DOWN)
+ScanSer()
+cmbSerial.Index = cmbSerial.Find(s)
+  'Calculate_load(57600, 12000000, 1)
+End
+Sub ScanSer()
+    Dim File As String
+  Dim recentFile As File
+Dim counter As Integer
+Dim s As String
+Dim y As Integer
+cmbSerial.Clear
+    For Each File In Dir("/dev", "ttyUSB*").Sort()
+    cmbSerial.add("/dev/" & File)
+  Next
+  For Each File In Dir("/dev", "ttyS*").Sort()
+  If counter = 5 Then Break
+   y = Val(Replace(file, "ttyS", ""))
+  If y < 4 Then
+    cmbSerial.add("/dev/" & File)
+    counter = counter + 1
+  End If
+  Next
+  
+End
+
+Sub CmdLog(s As String)
+  
+  Try textarea1.text = s & Chr(10) & textarea1.text
+  
+End
+
+Public Sub Button3_Click()
+
+  x = False
+  press_button = True
+
+End
+
+Public Sub Timer1_Timer()
+
+
+  x = False
+Timer1.Enabled = False
+SCBU(True)
+End
+Public Sub Disp_To_Message()
+  
+CmdLog("连接超时")
+CmdLog("也许你的MCU死太惨了")
+CmdLog("或者你忘了把P1.0/P1.1短到地也说不定")
+CmdLog("看看晶振接上了没，X2有没有1/2Vcc的电压？")
+CmdLog("如果上述事情你都做了，只能证明你的死太惨的ISP程序已经死太惨")
+CmdLog("或者你把他烧了也说不定 = =")
+CmdLog("这个软件运行的时候最好不要开VBox哟～")
+CmdLog("仔细检查下吧～")
+  
+End
+
+Public Sub Frame2_MouseDown()
+
+  
+
+End
+
+Public Sub Label15_MouseDown()
+
+  
+
+End
+
+Public Sub Label6_MouseDown()
+
+  
+
+End
+
+Public Sub Label11_MouseDown()
+
+  
+
+End
+
+Public Sub cmbWDT_Click()
+
+  
+
+End
+
+Public Sub Button6_Click()
+
+  Message.Info("这是一款在GNU/Linux下用来下载死特惨(STC)89系列的上位机" & Chr(13) & "程序。制作者万致远。感谢VBox虚拟机以及gSTC-ISP软件的大力帮助！" & Chr(13) & "顺便说一下，我在开发的时候已经差点被Ubuntu自带的Gambas2的串口控件搞疯了！！" & Chr(13) & "自动下载功能配合自动冷启动硬件/自动复位代码效果更佳。" & Chr(13) & "此程序用GAMBAS编写。采用GPL v3发布。" & Chr(13) & "http://www.rwzy.co.cc 万致远 VERSION 1.4-FIX1-N")
+
+
+End
+
+Public Sub Button4_Click()
+  Dialog.Title = "打开程序文件"
+  Dialog.Filter = ["*.bin", "二进制文件"]
+  If Not (Dialog.OpenFile()) Then
+  txtFile.Text = Dialog.Path
+  End If
+End
+
+Public Function Calculate_load(Baud As Integer, Crystal As Long) As String
+  'Crystal以HZ计单位
+  '12T函数
+  Dim reload As Byte
+  Dim Baud0 As Integer
+  Dim v As Long
+  'DEBUG "Crystal Freq:" & Crystal & " Hz"
+  '使用12T模式，加倍波特率
+  'IF Dual THEN
+  v = Baud * 32
+  reload = Int(256 - (crystal / v) + 0.5)
+  baud0 = ((crystal / 2) / (256 - reload) / 16)
+  'ELSE 
+  'v = Baud * 32
+  'reload = Int(256 - (crystal / v) + 0.5)
+  'baud0 = ((crystal / 12) / (256 - reload) / 32)
+  'END IF
+ ' DEBUG "Reload is " & Hex(reload)
+  'DEBUG baud
+  Try calc_error = Abs((Baud / baud0) - 1) * 10000
+  'DEBUG "error: " & Str(Calc_error / 100) & "%"
+  Return Chr(reload)
+  
+End
+
+Public Sub Button7_Click()
+
+'InputBox.Show
+End
+
+
+'2,12
+Public Function CheckSum(buff As String, start As Integer, endchr As Integer) As String '返回两个字
+  Dim i As Integer
+  Dim chkSum As Long
+  Dim lo As Byte
+  Dim hi As Byte
+  Dim tempStr As String
+  chksum = 0
+  For i = start To endchr
+  chksum = chksum + Asc(Mid(buff, i, 1))
+  'DEBUG Hex(Asc(Mid(buff, i, 1)))
+  Next
+  'hi = Shr(chksum AND &HFF00, 8)
+  lo = chksum And &H00FF
+  tempStr = Chr(lo)
+  Return tempStr
+End
+Public Sub ClrBuff()
+  
+recvd = False
+recvBuff = ""
+recvptr = 0
+recv = False
+Frame_Type = False
+End
+
+Public Sub SendData()
+Dim i As Integer
+Dim len_buff As Integer
+len_buff = Len(send_buff) + 5 '2b src+1b len+1b chk + 1b eot
+send_buff = Chr(&H46) & Chr(&HB9) & Chr(&H6A) & Chr(00) & Chr(len_buff) & send_buff
+send_Buff = send_Buff & CheckSum(send_Buff, 3, Len(send_Buff)) & Chr(&H16) 'Chksum
+If Sport.Status = Net.active Then
+Write #Sport, send_buff, Len(send_buff)
+Else
+Write #Sport1, send_buff, Len(send_buff)
+End If
+MyDEBUG("发送:" & global.BinToHex(send_buff))
+  
+End
+
+Public Function WaitData() As Boolean
+Timer1.enabled = True
+ClrBuff() 'CLEAR
+Do
+      If x = False Then
+        If press_button = True Then
+          press_button = False
+         CmdLog("用户取消……")
+        Else
+         CmdLog("等待超时……")
+       End If
+      TimerStart.Enabled = False
+      MyDEBUG("----停止发送开始帧-----")
+      Return False
+     End If
+     If recv And TimerStart.Enabled = True Then
+     TimerStart.Enabled = False
+     MyDEBUG("----停止发送开始帧-----")
+     End If
+     If recvd Then
+          MyDEBUG("收到:" & global.BinToHex(recvbuff))
+          If ChkBuff(recvBuff) Then
+            TimerStart.Enabled = False
+            Return True
+          Else
+            TimerStart.Enabled = False
+            Return False
+          End If
+      End If
+      Wait 0.01
+Loop
+Timer1.enabled = False
+End
+
+
+Public Sub Button5_Click()
+Dim I, j As Integer
+Dim file_Size, less, address As Long
+Dim transa, transb As Date
+Dim hi, lo, sw_dly As Byte
+Dim s, baud_buff, read_buff, s_option As String
+Dim binFile As File
+Dim trans1, trans2 As Date
+Dim calc_fz, qIndex, TBaud As Integer
+Dim sReload, xReload As String
+Dim sCkSum1, sCkSum2 As String
+Dim IAP_Timer As String
+ProgressBar1.value = 0
+ClrBuff
+TimerStart.Enabled = False
+If Not T_AutoDown.enabled Then TextArea1.Clear
+Transa = Now()
+  If cmbSpeed.text = "1200" Then
+  TimerStart.Delay = 120
+  Else
+  TimerStart.Delay = 60
+  End If
+  If (txtFile.text = "" Or Exist(txtFile.Text) = False) Then
+    Message("请选择文件！")
+    Return
+  End If
+binFile = Open txtFile.Text For Read
+  file_Size = Lof(binFile)
+If file_Size > 61440 Then
+  If Not T_AutoDown.Enabled Then Message("文件大小超过了60kB，将自动截断以后的部分")
+  'CLOSE #binFile
+  'RETURN 
+End If
+Close #binFile
+SCBU(False)
+x = True
+  If Sport.Status = Net.Inactive Then
+    'Message("请先开端口!")
+    OpenCom(cmbSpeed.Text)
+  End If
+
+CmdLog("开始于 " & Format(Time, "hh.mm.ss") & "  ……")
+CmdLog("发送0x7f以开启ISP模式")
+CmdLog("请给 MCU 上电……")
+MyDEBUG("----开始发送开启帧-----")
+TimerStart.Enabled = True
+If WaitData() Then
+  '成功接收到一帧数据
+  Calc_Speed
+  ShowOption
+  MyDEBUG("MCU特征字：" & global.BinToHex(MCU_MODEL))
+  SCBU(True)
+  TimerStart.Enabled = False
+  Else
+    CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+    ClrBuff()
+    CloseCom() '关闭通讯
+    SCBU(True)
+    TimerStart.Enabled = False
+    Return
+  End If
+ ' textarea1.clear
+'计算最大可用波特率
+  tbaud = cmbSpeed2.text
+  qindex = cmbSpeed2.index
+  Do
+    xReload = Calculate_load(Tbaud, sClock)
+    If calc_error > 100 Then '误差太大
+      qindex = qindex - 1
+      Try Tbaud = cmbSpeed2.List[qindex]
+      If Error Then
+      If Not T_AutoDown.Enabled Then Message("请选择合适的波特率和晶振组合")
+      CmdLog("请选择合适的波特率和晶振组合")
+      CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+      MyDEBUG("stop at point A")
+      MyDEBUG(("错误率:" & Str(calc_error / 100) & "%,重载值:0x" & global.BinToHex(sReload)))
+      ClrBuff()
+      SCBU(True)
+      CloseCom() '关闭通讯
+      CloseCom1()
+      Return
+      End If
+    Else
+      sReload = xreload
+      Break '已经算出
+   End If
+  Loop
+    CmdLog("将使用 " & tbaud & " 的波特率进行下载……连接中")
+  MyDEBUG(("错误率:" & Str(calc_error / 100) & "%,重载值:0x" & global.BinToHex(sReload)))
+'发送波特率改变帧
+  i = (2 * (&H100 - Asc(sReload)))
+  If i > 255 Then i = i And 255
+  If Val(cmbSpeed.Text) >= 4800 Then
+  sw_dly = &Hff '根据晶振频率调整，这个最安全，保险取大一点
+  Else
+  sw_dly = &Hff '根据晶振频率调整，这个最安全，保险取大一点
+  End If
+    If sClock < 1000000 Then
+  IAP_Timer = Chr(&H87) 'IAP定时常数，老妖TM还这么隐蔽
+  Else If sClock < 2000000 Then
+  IAP_Timer = Chr(&H86) 'IAP定时常数，老妖TM还这么隐蔽
+  Else If sClock < 3000000 Then
+  IAP_Timer = Chr(&H85) 'IAP定时常数，老妖TM还这么隐蔽
+  Else If sClock < 6000000 Then
+  IAP_Timer = Chr(&H84) 'IAP定时常数，老妖TM还这么隐蔽
+  Else If sClock < 12000000 Then
+  IAP_Timer = Chr(&H83) 'IAP定时常数，老妖TM还这么隐蔽
+  Else If sClock < 20000000 Then
+  IAP_Timer = Chr(&H82) 'IAP定时常数，老妖TM还这么隐蔽
+  Else If sClock < 24000000 Then
+  IAP_Timer = Chr(&H81) 'IAP定时常数，老妖TM还这么隐蔽
+  Else If sClock < 500000000 Then
+  IAP_Timer = Chr(&H80) 'IAP定时常数，老妖TM还这么隐蔽
+  End If
+  baud_Buff = Chr(&HFF) & sReload & Chr(&H00) & Chr(i) & Chr(sw_dly)
+  'IF Tmod THEN
+ ' DEBUG sClock
+
+  'DEBUG global.BinToHex(IAP_Timer)
+  send_buff = Chr(&H8F) & baud_buff & IAP_Timer 'Chr(&H81)
+  SendData() '发送数据
+  'FLUSH
+  If cmbSpeed.Text <> cmbSpeed2.Text Then
+  Wait 0.2
+  'ELSE 
+  'send_buff = Chr(&H8F) & baud_buff & Chr(&H80) '搞不懂最后1个BIT是什么意思。但是还是照发了
+  'END IF
+  'WAIT 0.1 '等待数据传输完成
+  CloseCom
+  OpenCom1(TBaud)
+  End If
+  SCBU(False)
+  If WaitData() Then
+  '成功接收到ACK
+  
+  CmdLog("切换波特率应答成功")
+  Else
+    CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+    ClrBuff()
+    CloseCom() '关闭通讯
+    SCBU(True)
+    Return
+  End If
+  If cmbSpeed.Text <> cmbSpeed2.Text Then
+  CloseCom1
+  OpenCom(cmbSpeed.Text) '最低波特率重开
+  End If
+  send_buff = Chr(&H8E) & baud_buff
+  SendData()
+  'FLUSH
+  If cmbSpeed.Text <> cmbSpeed2.Text Then
+  Wait 0.2 '等待数据OK
+  CloseCom
+  OpenCom1(TBaud)
+  End If
+  '下面这一段交互是什么意思？
+  For j = 1 To 5 '老妖要射5次
+  If WaitData() Then
+    send_Buff = Chr(&H80) & Chr(&H02) & Chr(&H00) & Chr(&H36) & Chr(&H01) & Chr(&HF0) & Chr(&H02)
+    SendData()
+    Else
+      CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+      ClrBuff()
+      CloseCom() '关闭通讯
+      SCBU(True)
+      Return
+    End If
+  Next
+    If WaitData() Then  '等第六个数据
+    'send_Buff = Chr(&H80) & Chr(&H02) & Chr(&H00) & Chr(&H36) & Chr(&H01) & Chr(&HF0) & Chr(&H02)
+    'SendData()
+    Else
+      CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+      ClrBuff()
+      CloseCom() '关闭通讯
+      CloseCom1
+      SCBU(True)
+      Return
+    End If
+    CmdLog("握手成功！")
+    trans1 = Now()
+    CmdLog("擦除芯片……")
+    send_buff = Chr(&H84) & Chr(&H02) & Chr(&H33) & Chr(&H33) & Chr(&H33) & Chr(&H33) & Chr(&H33) & Chr(&H33)
+    SendData()
+     If WaitData() Then  '等第六个数据
+    'send_Buff = Chr(&H80) & Chr(&H02) & Chr(&H00) & Chr(&H36) & Chr(&H01) & Chr(&HF0) & Chr(&H02)
+    'SendData()
+    CmdLog("擦除成功……")
+    trans2 = Now() - trans1
+    CmdLog("擦除芯片用时：[" & Second(trans2) & " s].")
+    Else
+      CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+      ClrBuff()
+      CloseCom() '关闭通讯
+      CloseCom1
+      SCBU(True)
+      Return
+    End If
+  trans1 = Now()
+  CmdLog("载入文件……大小： " & Str(file_size) & " 字节")
+binFile = Open txtFile.Text For Read
+  CmdLog("开始写入……")
+  Do While Not Eof(binFile)
+    less = file_size - Seek(binFile)
+    If less < &H80 Then
+      Read #binfile, read_buff, less
+      read_buff = read_buff & global.FillZero(&H80 - less) '填充0
+    Else
+      Read #binfile, read_buff, &H80
+    End If
+    If address > 61312 Then '大于60kB自动截断
+    CmdLog("文件长度过大，已经自动截断……")
+    Break
+    End If
+    hi = Shr(address And &HFF00, 8)
+    lo = address And &H00FF
+    '构建数据帧
+    send_buff = Chr(0) & Chr(0) & Chr(0) & Chr(hi) & Chr(lo) & Chr(0) & Chr(&H80) & read_buff
+    SendData()
+    ProgressBar1.value = Seek(binFile) / file_Size
+     If WaitData() Then
+     '验证校验码
+     sCkSum1 = CheckSum(read_buff, 1, Len(read_buff))
+     sCkSum2 = Mid(recvBuff, 7, 1)
+     If sCkSum1 <> sCkSum2 Then
+      CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+      CmdLog("地址在：" & address)
+      CmdLog("校验码错误")
+      Message.Warning("校验码错误,写入失败！地址在：" & address & "，可能芯片已老旧/损坏！")
+      CmdLog("写入失败！")
+      SCBU(True)
+      ClrBuff()
+     'CloseCom1() '关闭通讯
+    ' ClrBuff()
+     CloseCom1() '关闭通讯
+     CloseCom()
+      Return
+     End If
+      Else
+      CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+      CmdLog("地址在：" & address)
+      CmdLog("写入失败！")
+      SCBU(True)
+     MyDEBUG("stop at point 6")
+     ClrBuff()
+     CloseCom() '关闭通讯
+     CloseCom1
+     Return
+    End If
+    address = address + &H80
+  Loop
+  '结束编程？
+  Close #binFile
+    '设置选项
+    cmdlog("数据传输完成！")
+    trans2 = Now() - trans1
+    CmdLog("写入芯片用时：[" & Str(Second(trans2)) & " s].")
+    s_Option = SaveOption()
+  If s_Option = Mid(MCU_Option, 3, 1) Then
+    CmdLog("选项相同，无需设置……")
+    send_Buff = Chr(&H80)
+    SendData() 'MCU RESET
+      CloseCom1
+  Else
+  CmdLog("设置选项中……")
+  MCU_Option = Mid(MCU_Option, 1, 2) & s_Option & Mid(MCU_Option, 4, 2)
+  ShowOption()
+  send_Buff = Chr(&H8D) & s_Option & Chr(&HFF) & Chr(&HF4) & Chr(&HFF)
+  SendData()
+  If WaitData() Then
+    send_Buff = Chr(&H80)
+    SendData() 'MCU RESET
+      CloseCom1
+      If AutoISP Then
+      CmdLog("硬重启MCU让选项生效中......")
+      OpenCom(cmbSpeed.Text) '开最低波特率
+      TimerStart.Enabled = True
+       Wait 0.5
+       TimerStart.Enabled = False
+       CloseCom
+      End If
+  Else
+      CmdLog("停止于 " & Format(Time, "hh.mm.ss") & "  ……")
+      MyDEBUG("stop at point 7")
+      ClrBuff()
+      CloseCom() '关闭通讯
+      CloseCom1
+      SCBU(True)
+      Return
+  End If
+  End If
+
+CmdLog("成功……")
+Count_DOWN = Count_DOWN + 1
+Label12.text = "成功下载次数：" & Str(Count_DOWN)
+SCBU(True)
+    
+End
+
+Sub OpenCom(Baud As Integer)
+  ' Line parameters
+  Sport.PortName = cmbSerial.Text
+  Sport.Speed = Baud
+  Sport.Parity = SerialPort.None
+  ' keep DTR on
+  Sport.FlowControl = 0
+  Try Sport.Open()
+  If Error Then
+  ScanSer()
+  Message("打开串口失败！请检查硬件/软件设置！" & Chr(13) & "或者尝试使用命令 ‘sudo useradd 您的用户名 dialout’ 来解决问题，谢谢！")
+  x = False
+  Return
+  End If
+Cmdlog("端口已打开 : " & Sport.PortName & " 设置为 : " & Sport.Speed)
+MyDEBUG("端口打开,波特率:" & Sport.Speed & "," & Sport.Parity & ",COM1")
+  
+End
+
+Sub CloseCom()
+Try Close Sport
+Cmdlog("端口已关闭")
+MyDEBUG("COM1关闭")
+End
+Sub OpenCom1(Baud As Integer)
+  ' Line parameters
+  Sport1.PortName = cmbSerial.Text
+  Sport1.Speed = Baud
+  Sport1.Parity = SerialPort.None
+  ' keep DTR on
+  Sport1.FlowControl = 0
+  Try Sport1.Open()
+  If Error Then
+  ScanSer()
+  Message("打开串口失败！请检查硬件/软件设置！" & Chr(13) & "或者尝试使用命令 ‘sudo useradd 您的用户名 dialout’ 来解决问题，谢谢！")
+  x = False
+  Return
+  End If
+Cmdlog("端口已打开 : " & Sport1.PortName & " 设置为 : " & Sport1.Speed)
+MyDEBUG("端口打开,波特率:" & Sport1.Speed & "," & Sport1.Parity & " COM2")
+  
+End
+Sub CloseCom1()
+Try Close Sport1
+Cmdlog("端口已关闭")
+MyDEBUG("COM2关闭")
+End
+
+
+
+Public Sub TimerStart_Timer()
+
+  SendStart
+
+End
+
+Public Function SaveOption() As String
+  Dim i As Byte
+  Dim tmp As String '保存选项
+  i = &HFF
+  i = BClr(i, 1)
+  If CheckBox5.Value Then
+  i = BClr(i, 2)
+  End If
+  If CheckBox1.Value Then
+  i = BClr(i, 0)
+  End If
+  If Not CheckBox2.Value Then
+  i = BClr(i, 4)
+  End If
+  If Not CheckBox9.Value Then
+  i = BClr(i, 6)
+  End If
+  If Not CheckBox4.Value Then
+  i = BClr(i, 7)
+  End If
+  If Not CheckBox8.Value Then
+  i = BClr(i, 5)
+  End If
+  If CheckBox3.Value Then
+  i = BClr(i, 3)
+  End If
+  tmp = Chr(i)
+  MyDEBUG("选项码:" & global.BinToHex(tmp))
+  Return tmp
+End
+
+
+
+Public Sub Button8_Click()
+SendStart()
+End
+
+Public Sub Sport1_Read()
+
+  Dim s As String
+  '这里的处理稍微麻烦一点
+  Try Read #Sport1, s, 1 '这里出错程序就挂住了，每次读一个
+  'DEBUG global.BinToHex(s)
+  'DEBUG recvptr
+  If (Asc(s) = &H46 And recvptr = 0) '帧开始了
+    recv = True
+    Frame_Type = True
+  Else If (Asc(s) = &H68 And recvptr = 0)
+  recv = True
+  Frame_Type = False
+  'DEBUG "c"
+  Else If (Asc(s) = &H16) 'EOT标志，STC不支持读
+   ' DEBUG "A=" & recvptr 
+   ' DEBUG "B=" & recvLen
+   ' DEBUG "FT=" & Frame_Type
+    If ((recvlen - 1) = recvptr And Frame_Type = False)
+    recv = False
+    recvBuff = recvBuff & s
+    recvptr = recvptr + 1
+    recvd = True '整个数据帧接收完毕
+    End If
+    If ((recvlen + 1) = recvptr And Frame_Type = True)
+    recv = False
+    recvBuff = recvBuff & s
+    recvptr = recvptr + 1
+    recvd = True '整个数据帧接收完毕
+    End If
+
+  End If
+  If recv Then
+    recvBuff = recvBuff & s
+    recvptr = recvptr + 1
+  End If
+  If recvptr = 5 And Frame_Type = True Then
+   recvLen = Asc(s)
+   'DEBUG "Len" & global.BinToHex(s)
+   End If
+   If recvptr = 3 And Frame_Type = False Then
+   recvLen = Asc(s)
+   'DEBUG "Len" & global.BinToHex(s)
+   End If
+
+End
+
+Public Sub Button1_Click()
+
+    If T_AutoDown.Enabled Then
+  Label11.Text = "自动下载：关"
+  T_AutoDown.Enabled = False
+  txtFile.Enabled = True
+  Button4.Enabled = True
+  Else
+  Last_M_TIME = Null
+  Label11.Text = "自动下载：开"
+  T_AutoDown.Enabled = True
+  txtFile.Enabled = False
+  Button4.Enabled = False
+  End If
+  
+
+End
+
+Public Sub CheckBox4_Click()
+
+  
+
+End
+
+Public Sub T_AutoDown_Timer()
+
+  Dim i As Stat
+  If Down Then Return
+  If Not Exist(txtFile.Text) Then Return
+  i = Stat(txtFile.Text)
+  If Last_M_TIME = Null Then
+  Last_M_TIME = i.LastModified
+  Return
+  End If
+  If Last_M_Time <> i.LastModified Then '文件被修改
+  TextArea1.clear
+  CmdLog("文件已被更改，自动下载中……")
+  CmdLog("此功能应当和自动下载硬件配合使用……")
+  Last_M_Time = i.LastModified
+  Wait 1
+  
+  Button5_Click() '调用下载函数
+  End If
+
+
+End
+
+Public Sub Button9_Click()
+  CmdLog("修复中……")
+  SCBU(False)
+  OpenCom(2400)
+  OpenCom1(115200)
+  CloseCom
+  CloseCom1
+  SCBU(True)
+End
+
+Public Sub Button10_Click()
+x = True
+If A Then
+X = False
+A = False
+Return
+End If
+  Do
+  A = True
+    If x <> True Then
+    CmdLog("用户取消……")
+    Return
+    End If
+     Button5_Click() '调用下载
+     CmdLog("3秒后下载另一个MCU……")
+    Wait 1
+    CmdLog("2秒后下载另一个MCU……")
+   Wait 1
+    CmdLog("1秒后下载另一个MCU……")
+        Wait 1
+    CmdLog("开始……")
+  Loop
+End
+
+Public Sub Button11_Click()
+
+  Count_DOWN = 0
+  
+Label12.text = "成功下载次数：" & Str(Count_DOWN)
+End
+
+Public Sub Button12_Click()
+                    '880=full
+                    '560=normal
+If fMain.Width <> 880 Then
+fMain.Width = 880
+txtDEBUG.Text = "调试区域 如果有BUG可以从这里提取信息" & Chr(13) & "反馈给我：dv.xw@qq.com OR" & Chr(13) & "562467068 OR rwzy.co.cc" & Chr(13)
+Else
+fMain.Width = 560
+End If
+
+End
+
+
+Public Sub Button13_Click()
+
+  ScanSer()
+
+End

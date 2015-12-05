@@ -1,0 +1,16 @@
+[Breakpoints]
+Count=0
+
+[DebugWindow]
+Count=0
+
+[OpenFile]
+File[1]=".src/fMain.form"
+Active=2
+File[2]=".src/fMain.class:764.36"
+File[3]=".src/global.class:28.0"
+Count=3
+
+[Watches]
+Count=0
+
