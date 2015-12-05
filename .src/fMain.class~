@@ -105,11 +105,14 @@ End
 
 Public Function GetMCUType(Model As Byte) As String
 MCU_MODEL = Chr(Model)
-If Model = 240 Then
-Return "STC89C52RC"
-Else
-Return "Unknown"
-End If
+Select Case MCU_MODEL
+  Case 1
+    Return "STC89C51"
+  Case 2
+    Return "STC89C52"
+  Case Else
+    Return "Unknown"
+End Select
 End
 Sub SCBU(value As Boolean)
   
@@ -215,13 +218,13 @@ CloseCom
 End
 Sub Calc_Speed()
 Dim Options As Integer
-    Options = Asc(Mid(MCU_Option, 3, 1))
-    sClock = (Asc(Mid(recvBuff, 7, 1)) * 256 + Asc(Mid(recvBuff, 8, 1))) * Val(cmbSpeed.text) * 12 / 6.941 '补偿
-    MyDEBUG(global.BinToHex(Mid(recvBuff, 7, 2)))
     MCU_Option = Mid(recvBuff, 23, 6)
+    Options = Asc(Mid(MCU_Option, 3, 1))
+    sClock = (Asc(Mid(recvBuff, 7, 1)) * 256 + Asc(Mid(recvBuff, 8, 1))) * Val(cmbSpeed.text) * 12 / 7.10 '补偿
+    MyDEBUG(global.BinToHex(Mid(recvBuff, 7, 2)))
     Label14.Text = Str(sClock) & " Hz"
     Label19.Text = Str(Int(sClock / 1000) / 1000) & " MHz"
-    Label13.Text = "MCU型号：" & GetMCUType(Asc(Mid(MCU_Option, 4, 1)))
+    Label13.Text = "MCU型号：" & GetMCUType(Asc(Mid(MCU_Option, 5, 1)))
     Label15.Text = "MCU固件版本：" & Str(Val(Hex(Asc(Mid(MCU_Option, 1, 1)))) / 10)
     If BTst(Options, 0) Then
     MCU_REAL_CLOCK = sClock
@@ -1103,5 +1106,11 @@ End
 Public Sub Button13_Click()
 
   ScanSer()
+
+End
+
+Public Sub Frame3_MouseDown()
+
+  
 
 End
