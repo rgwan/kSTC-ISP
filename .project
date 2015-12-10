@@ -3,13 +3,14 @@
 Title=Serial port example
 Startup=fMain
 Icon=serialport.png
-Version=3.0.0
+Version=3.0.2
 Component=gb.image
 Component=gb.gui
 Component=gb.net
 TabSize=2
 Translate=1
 Language=fr
+ExecPath=/home/rgwan/mcu/kSTC-ISP89.gambas
 Maintainer=benoit
 Vendor=Princeton
 Address=benoit@desnouettes
