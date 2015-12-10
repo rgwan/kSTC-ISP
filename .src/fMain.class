@@ -107,9 +107,11 @@ Public Function GetMCUType(Model As Byte) As String
 MCU_MODEL = Chr(Model)
 Select Case Model
   Case 1
-    Return "STC89C51"
+    Return "STC89C51RC"
   Case 2
-    Return "STC89C52"
+    Return "STC89C52RC"
+  Case 4
+    Return "STC89C54RD+"
   Case Else
     Return "Unknown"
 End Select
@@ -1097,7 +1099,7 @@ If fMain.Width <> 880 Then
 fMain.Width = 880
 txtDEBUG.Text = "调试区域 如果有BUG可以从这里提取信息" & Chr(13) & "反馈给我：dv.xw@qq.com OR" & Chr(13) & "562467068 OR rwzy.co.cc" & Chr(13)
 Else
-fMain.Width = 560
+fMain.Width = 480
 End If
 
 End
