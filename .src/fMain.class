@@ -220,10 +220,15 @@ CloseCom
 End
 Sub Calc_Speed()
 Dim Options As Integer
+Dim i As Integer
     MCU_Option = Mid(recvBuff, 23, 6)
     Options = Asc(Mid(MCU_Option, 3, 1))
-    sClock = (Asc(Mid(recvBuff, 7, 1)) * 256 + Asc(Mid(recvBuff, 8, 1))) * Val(cmbSpeed.text) * 12 / 7.10 '补偿
-    MyDEBUG(global.BinToHex(Mid(recvBuff, 7, 2)))
+    sClock = 0
+    For i = 0 To 7
+     sClock = (Asc(Mid(recvBuff, 7 + 2 * i, 1)) * 256 + Asc(Mid(recvBuff, 8 + 2 * i, 1))) * Val(cmbSpeed.text) * 12 / 7 + sClock '补偿
+    Next
+    sClock = sClock / 8
+    
     Label14.Text = Str(sClock) & " Hz"
     Label19.Text = Str(Int(sClock / 1000) / 1000) & " MHz"
     Label13.Text = "MCU型号：" & GetMCUType(Asc(Mid(MCU_Option, 5, 1)))
@@ -238,7 +243,7 @@ Dim Options As Integer
     TMOD = False
     End If
     Label2.Text = Str(Int(MCU_REAL_CLOCK / 1000) / 1000) & " MHz"
-    If Val(Hex(Asc(Mid(MCU_Option, 1, 1)))) = 43 Then
+    If Val(Hex(Asc(Mid(MCU_Option, 2, 1)))) = 43 Then
     Label15.Text = Label15.Text & "C"
     Else
     Label15.Text = Label15.Text & "I"

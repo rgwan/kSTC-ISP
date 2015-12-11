@@ -273,7 +273,7 @@
     }
   }
   { txtDebug TextArea
-    MoveScaled(61,3,47,45)
+    MoveScaled(61,3,47,49)
     Text = ("调试区域 如果有BUG可以从这里提取信息\n")
     ReadOnly = True
     Wrap = True

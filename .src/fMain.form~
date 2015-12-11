@@ -1,18 +1,18 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(70,26.625,60,53)
+  MoveScaled(70,26.625,60,54)
   Text = ("kSTC89ISP")
   Resizable = False
   { Frame1 Frame
-    MoveScaled(25,20,34,32)
+    MoveScaled(25,20,34,33)
     Text = ("控制")
     { Label4 Label
       MoveScaled(1,2,11,4)
       Text = ("状态：脱机")
     }
     { ProgressBar1 ProgressBar
-      MoveScaled(1,28,31,3)
+      MoveScaled(1,29,31,3)
     }
     { Button6 Button
       MoveScaled(24,2,9,4)
@@ -138,7 +138,7 @@
     List = [("1200"), ("2400"), ("4800"), ("9600"), ("19200"), ("38400"), ("57600"), ("115200"), ("230400")]
   }
   { Label5 Label
-    MoveScaled(27,45,31,3)
+    MoveScaled(27,46,31,3)
     Text = ("进度：                  Made by 万致远")
   }
   { Frame2 Frame
@@ -262,13 +262,13 @@
     Delay = 10000
   }
   { Frame4 Frame
-    MoveScaled(1,20,24,30)
+    MoveScaled(1,20,24,33)
     Text = ("日志")
     { TextArea1 TextArea
-      MoveScaled(1,2,22,25)
+      MoveScaled(1,2,22,27)
     }
     { Label12 Label
-      MoveScaled(2,26,17,4)
+      MoveScaled(2,29,17,4)
       Text = ("成功下载次数：")
     }
   }
