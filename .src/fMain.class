@@ -225,7 +225,7 @@ Dim i As Integer
     Options = Asc(Mid(MCU_Option, 3, 1))
     sClock = 0
     For i = 0 To 7
-     sClock = (Asc(Mid(recvBuff, 7 + 2 * i, 1)) * 256 + Asc(Mid(recvBuff, 8 + 2 * i, 1))) * Val(cmbSpeed.text) * 12 / 7 + sClock '补偿
+     sClock = (Asc(Mid(recvBuff, 7 + 2 * i, 1)) * 256 + Asc(Mid(recvBuff, 8 + 2 * i, 1))) * Val(cmbSpeed.text) * 12 / 7.1 + sClock '补偿
     Next
     sClock = sClock / 8
     

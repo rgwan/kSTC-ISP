@@ -450,7 +450,7 @@ End
 
 Public Sub Button6_Click()
 
-  Message.Info("这是一款在GNU/Linux下用来下载死特惨(STC)89系列的上位机" & Chr(13) & "程序。制作者万致远。感谢VBox虚拟机以及gSTC-ISP软件的大力帮助！" & Chr(13) & "顺便说一下，我在开发的时候已经差点被Ubuntu自带的Gambas2的串口控件搞疯了！！" & Chr(13) & "自动下载功能配合自动冷启动硬件/自动复位代码效果更佳。" & Chr(13) & "此程序用GAMBAS编写。采用GPL v3发布。" & Chr(13) & "http://www.rwzy.co.cc 万致远 VERSION 1.4-FIX1-N")
+  Message.Info("这是一款在GNU/Linux下用来下载死特惨(STC)89系列的上位机" & Chr(13) & "程序。制作者万致远。感谢VBox虚拟机以及gSTC-ISP软件的大力帮助！" & Chr(13) & "顺便说一下，我在开发的时候已经差点被Ubuntu自带的Gambas2的串口控件搞疯了！！" & Chr(13) & "自动下载功能配合自动冷启动硬件/自动复位代码效果更佳。" & Chr(13) & "此程序用GAMBAS编写。采用GPL v3发布。" & Chr(13) & "http://github.com/rgwan 万致远 VERSION 1.5")
 
 
 End
